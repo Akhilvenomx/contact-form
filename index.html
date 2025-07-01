@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Form</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font and specific colors */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light grey background */
+        }
+        .form-container {
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .donate-button {
+            background-color: #ff7f00; /* Orange color for Donate Now button */
+            transition: background-color 0.3s ease;
+        }
+        .donate-button:hover {
+            background-color: #e67300; /* Darker orange on hover */
+        }
+        .amount-button {
+            background-color: #fdf2e9; /* Light peach for amount buttons */
+            color: #333;
+            border: 1px solid #ff7f00; /* Orange border */
+            transition: all 0.2s ease;
+        }
+        .amount-button.selected {
+            background-color: #ff7f00; /* Orange when selected */
+            color: #fff;
+        }
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            background-color: #fdf2e9; /* Light peach for input fields */
+            border: 1px solid #ff7f00; /* Orange border */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="form-container flex flex-col lg:flex-row rounded-xl overflow-hidden max-w-4xl w-full mx-auto">
+        <!-- Left Section: Text Content -->
+        <div class="lg:w-1/2 p-8 lg:p-12 flex flex-col justify-center bg-white">
+            <span class="text-orange-500 font-semibold mb-2">Donate Now</span>
+            <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-6 leading-tight">Thanks For The Results Achieved With You</h1>
+            <p class="text-gray-600 text-base lg:text-lg">
+                Tempor erat elitr rebum at clita. Diam dolor diam ipsum et sed, sed stet lorem elitr clita duo justo magna dolor erat amet.
+            </p>
+        </div>
+
+        <!-- Right Section: Form -->
+        <div class="lg:w-1/2 p-8 lg:p-12 bg-orange-50 rounded-r-xl">
+            <!-- Form now uses conventional POST method -->
+            <form id="donationForm" action="donation_form.php" method="POST" class="space-y-6">
+                <!-- Name Input -->
+                <div>
+                    <label for="name" class="sr-only">Your Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required
+                           class="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+
+                <!-- Email Input -->
+                <div>
+                    <label for="email" class="sr-only">Your Email</label>
+                    <input type="email" id="email" name="email" placeholder="Your Email" required
+                           class="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+
+                <!-- Message Textarea -->
+                <div>
+                    <label for="message" class="sr-only">Message</label>
+                    <textarea id="message" name="message" rows="4" placeholder="Message"
+                              class="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                </div>
+
+                <!-- Donation Amount Buttons -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <button type="button" class="amount-button p-3 rounded-lg text-lg font-semibold" data-amount="750">₹750</button>
+                    <button type="button" class="amount-button p-3 rounded-lg text-lg font-semibold selected" data-amount="3000">₹3000</button>
+                    <button type="button" class="amount-button p-3 rounded-lg text-lg font-semibold" data-amount="3500">₹3500</button>
+                    <button type="button" class="amount-button p-3 rounded-lg text-lg font-semibold" data-amount="15000">₹15000</button>
+                </div>
+                <!-- Hidden input to store the selected amount for POST submission -->
+                <input type="hidden" id="selectedAmount" name="selectedAmount" value="3000">
+
+                <!-- Submit Button -->
+                <button type="submit" class="donate-button w-full flex items-center justify-center p-3 rounded-lg text-white font-bold text-lg">
+                    Donate Now
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                    </svg>
+                </button>
+
+                <!-- Message Display Area (now handled by PHP query parameters) -->
+                <div id="formMessage" class="mt-4 text-center text-sm font-medium"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const amountButtons = document.querySelectorAll('.amount-button');
+            const selectedAmountInput = document.getElementById('selectedAmount');
+            const formMessage = document.getElementById('formMessage');
+
+            // Set initial selected amount
+            amountButtons.forEach(button => {
+                if (button.dataset.amount === selectedAmountInput.value) {
+                    button.classList.add('selected');
+                }
+            });
+
+            // Handle amount button clicks
+            amountButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove 'selected' class from all buttons
+                    amountButtons.forEach(btn => btn.classList.remove('selected'));
+                    // Add 'selected' class to the clicked button
+                    button.classList.add('selected');
+                    // Update the hidden input value
+                    selectedAmountInput.value = button.dataset.amount;
+                });
+            });
+
+            // Display messages from URL query parameters after form submission
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            const message = urlParams.get('message');
+
+            if (status && message) {
+                formMessage.textContent = decodeURIComponent(message);
+                if (status === 'success') {
+                    formMessage.className = 'mt-4 text-center text-sm font-medium text-green-600';
+                } else {
+                    formMessage.className = 'mt-4 text-center text-sm font-medium text-red-600';
+                }
+                // Clear URL parameters after displaying message to avoid re-display on refresh
+                history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+</body>
+</html>
