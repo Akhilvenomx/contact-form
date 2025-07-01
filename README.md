@@ -1,2 +1,7 @@
-# contact-form
-A simple contact form in Php to send the data to your Email Adress
+3 TYPES OF FORMS
+
+DONATION RECIEVING
+SUBSCRIPTION
+CONTACT ENQUIRY
+
+USED PHP POST METHOD TO RECIVE DATA IN EMAIL
